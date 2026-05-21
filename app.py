@@ -283,7 +283,7 @@ st.markdown(
 LEX_NAME = "Lexicon Based Custom Rule dengan Scoring Threshold"
 ZSC_NAME = "Zero Shot Classification Labeling"
 
-MODEL_DIR = "best model"
+MODEL_DIR = "deninanastiti/indobert-hate-speech-tarif-trump"
 MODEL_DISPLAY_NAME = "Indonesian BERT"
 MODEL_METHOD_DISPLAY = "Lexicon-Based Custom Rule"
 PREDICTION_BATCH_SIZE = 16
@@ -594,7 +594,7 @@ def render_cv_detail_tab(model_data, selected_model, selected_labeling, scenario
     with tab_summary:
         render_section_card(
             f"Ringkasan Statistik Cross Validation ({scenario})",
-            )
+        )
 
         st.dataframe(
             format_percentage_table(summary_df, ["Mean", "Std Dev"]),
@@ -1569,8 +1569,11 @@ if main_menu == "Evaluasi & Perbandingan Model":
 elif main_menu == "Uji Model Deteksi Hate Speech":
     render_page_header(
         title=f"Uji Model {MODEL_DISPLAY_NAME} - {MODEL_METHOD_DISPLAY}",
-        subtitle="Prediksi menggunakan model Indonesian BERT yang dilatih dari dataset isu Tarif Trump menggunakan label Lexicon-Based Custom Rule dengan Scoring Threshold. "
-        "Upload file CSV atau XLSX untuk mulai."
+        subtitle=(
+            "Prediksi menggunakan model Indonesian BERT yang dilatih dari dataset isu Tarif Trump "
+            "menggunakan label Lexicon-Based Custom Rule dengan Scoring Threshold. "
+            "Upload file CSV atau XLSX untuk mulai."
+        ),
     )
 
     uploaded_file = st.file_uploader(
@@ -1599,16 +1602,15 @@ elif main_menu == "Uji Model Deteksi Hate Speech":
                 st.warning("Tidak ada teks valid yang dapat diprediksi dari file yang diunggah.")
                 st.stop()
 
-            missing_files = validate_model_folder(MODEL_DIR)
+            if os.path.isdir(MODEL_DIR):
+                missing_files = validate_model_folder(MODEL_DIR)
 
-            if missing_files:
-                st.error(
-                    "Folder model belum lengkap. File yang belum ditemukan: "
-                    + ", ".join(missing_files)
-                )
-                st.stop()
-
-            st.info(f"Kolom teks: **{text_col}**")
+                if missing_files:
+                    st.error(
+                        "Folder model belum lengkap. File yang belum ditemukan: "
+                        + ", ".join(missing_files)
+                    )
+                    st.stop()
 
             with st.spinner("Memproses prediksi..."):
                 prediction_df = run_model_prediction(
